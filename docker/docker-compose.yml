@@ -1,0 +1,25 @@
+#version: '3.3'
+
+services:
+  picoquic:
+    image: imquic:base1.0
+    container_name: imquic
+    restart: unless-stopped
+    # 使用 tty 和 stdin_open 保持容器运行
+    tty: true
+    stdin_open: true
+    # 覆盖启动命令，让容器保持运行
+    command: tail -f /dev/null
+    network_mode: host
+    volumes:
+      - ./tmp:/tmp
+    environment:
+      - TZ=Asia/Shanghai
+        #- LSQUIC_LOG_LEVEL=info
+      - SSLKEYLOGFILE=/tmp/sslkey.log 
+    cap_add:
+      - NET_ADMIN
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
