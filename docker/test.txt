@@ -1,0 +1,18 @@
+./imquic-echo-server -p 4567 -k server.key -c server.crt -w -d 7
+./imquic-echo-client -r 127.0.0.1 -R 4567 -w -d 7
+
+./imquic-roq-server -p 4567 -k server.key -c server.crt -q -e -d 5 -s sslkey.log
+./imquic-roq-client -a 5000 -A 0 -p 2345 -r 127.0.0.1 -R 4567 -q -d 5                 //会丢包乱序
+./imquic-roq-client -a 5000 -A 0 -p 2345 -r 127.0.0.1 -R 4567 -q -d 5 -m stream //安全传输
+
+#A-LAW
+gst-launch-1.0 -v filesrc location=lj.wav     ! wavparse     ! audioconvert     ! audio/x-raw, format=S16LE, rate=8000, channels=1     ! audioconvert ! alawenc     ! rtppcmapay pt=8     ! udpsink host=127.0.0.1 port=5000 sync=false
+#rtpfile_pcm.c
+
+#U-LAW
+gst-launch-1.0 -v filesrc location=lj.wav ! wavparse ! audioconvert ! audio/x-raw, format=S16LE, rate=8000, channels=1 ! audioconvert ! mulawenc ! rtppcmupay pt=0 ! udpsink host=127.0.0.1 port=5000 sync=false
+#rtpfile_pcm.c
+
+#OPUS
+gst-launch-1.0 -v filesrc location=lj.wav ! wavparse ! audioconvert ! audioresample ! audio/x-raw,format=S16LE,rate=48000,channels=1 ! opusenc bitrate=64000 frame-size=20 ! rtpopuspay ! udpsink host=127.0.0.1 port=5000 sync=false async=false
+#rtpfile_opus.c
